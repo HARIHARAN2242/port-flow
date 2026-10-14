@@ -1,0 +1,2 @@
+# Add this dependency to your existing requirements.txt
+websockets>=14.0
