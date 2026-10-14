@@ -1,4 +1,5 @@
 """
+<<<<<<< HEAD
 PortFlow remedy assistant: trained text intent classifier + operational retrieval + LLM fallback.
 """
 from __future__ import annotations
@@ -14,6 +15,17 @@ import google.generativeai as genai
 GENAI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GENAI_API_KEY:
     genai.configure(api_key=GENAI_API_KEY)
+=======
+PortFlow remedy assistant: trained text intent classifier + operational retrieval.
+The classifier uses a small starter set of labelled examples; expand the examples
+with domain-specific questions before claiming robust language understanding.
+"""
+from __future__ import annotations
+import re
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
 
 TRAINING_EXAMPLES = {
     "congestion": [
@@ -27,8 +39,11 @@ TRAINING_EXAMPLES = {
         "Ships are waiting for berth allocation",
         "Congestion is delaying cargo movement",
         "Berth occupancy is too high",
+<<<<<<< HEAD
         "What is the queue length at Houston berth?",
         "Are there anchorage delays at the harbor?",
+=======
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
     ],
     "delay": [
         "Our vessel will arrive later than planned",
@@ -41,7 +56,10 @@ TRAINING_EXAMPLES = {
         "Arrival time prediction is inaccurate",
         "There is a schedule disruption",
         "How to handle late inbound vessels?",
+<<<<<<< HEAD
         "What is the delay status for vessel ID 102?",
+=======
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
     ],
     "weather": [
         "Strong winds are affecting port operations",
@@ -54,7 +72,10 @@ TRAINING_EXAMPLES = {
         "Wind speed is too high for crane operations",
         "The port is under a severe weather warning",
         "Rough seas are affecting arrivals",
+<<<<<<< HEAD
         "Is fog stopping pilotage operations?",
+=======
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
     ],
     "truck": [
         "Trucks are queuing outside the terminal gate",
@@ -67,7 +88,10 @@ TRAINING_EXAMPLES = {
         "The OCR lane is blocked",
         "Empty container returns are causing a bottleneck",
         "Gate operations are too slow",
+<<<<<<< HEAD
         "Truck congestion outside gate 3",
+=======
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
     ],
     "yard": [
         "The container yard is almost full",
@@ -78,7 +102,10 @@ TRAINING_EXAMPLES = {
         "Cargo is not moving out of the yard quickly",
         "Container storage capacity is too low",
         "Yard congestion is affecting unloading",
+<<<<<<< HEAD
         "Reefer plug capacity exhausted in yard section B",
+=======
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
     ],
     "equipment": [
         "A quay crane is unavailable",
@@ -88,7 +115,10 @@ TRAINING_EXAMPLES = {
         "The terminal has insufficient handling equipment",
         "A gantry crane stopped working",
         "We need to improve berth productivity",
+<<<<<<< HEAD
         "STS crane fault at berth 4",
+=======
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
     ],
 }
 
@@ -180,6 +210,7 @@ def classify_query(query: str) -> dict:
     idx = int(probs.argmax())
     return {"category": str(_CLASSIFIER.classes_[idx]), "confidence": round(float(probs[idx]), 3)}
 
+<<<<<<< HEAD
 def _llm_fallback_response(user_query: str, category: str, operational_context: dict | None = None) -> str:
     """Uses Gemini LLM to generate responses when queries ask about specific unknown data or complex situations."""
     if not GENAI_API_KEY:
@@ -229,11 +260,22 @@ def get_bot_remedy(user_query: str, operational_context: dict | None = None) -> 
     context = operational_context or {}
     lines = [f"### {remedy['title']} remedy", f"*ML intent classifier: `{category}` (confidence {confidence:.0%})*"]
     
+=======
+def get_bot_remedy(user_query: str, operational_context: dict | None = None) -> str:
+    prediction = classify_query(user_query)
+    category = prediction["category"]
+    remedy = REMEDIES.get(category, REMEDIES["general"])
+    context = operational_context or {}
+    lines = [f"### {remedy['title']} remedy", f"*ML intent classifier: `{category}` (confidence {prediction['confidence']:.0%})*"]
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
     if context:
         lines += ["", "**Current PortFlow context**"]
         for key, value in context.items():
             lines.append(f"- **{key}:** {value}")
+<<<<<<< HEAD
             
+=======
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
     lines += ["", "**Recommended actions**"]
     lines += [f"{i}. {action}" for i, action in enumerate(remedy["actions"], 1)]
     lines += ["", "_Operational decision support only. Verify live conditions and port-authority procedures before acting._"]
@@ -242,4 +284,8 @@ def get_bot_remedy(user_query: str, operational_context: dict | None = None) -> 
 def get_retrieved_remedy(user_query: str) -> dict:
     prediction = classify_query(user_query)
     category = prediction["category"]
+<<<<<<< HEAD
     return {"category": category, "confidence": prediction["confidence"], "knowledge": REMEDIES.get(category, REMEDIES["general"])}
+=======
+    return {"category": category, "confidence": prediction["confidence"], "knowledge": REMEDIES.get(category, REMEDIES["general"])}
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058

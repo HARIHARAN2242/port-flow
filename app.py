@@ -3,7 +3,10 @@ from pathlib import Path
 import calendar
 import json
 import time
+<<<<<<< HEAD
 import math
+=======
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
 
 import streamlit as st
 import pandas as pd
@@ -17,6 +20,7 @@ import optimizer
 
 
 # -----------------------------------------------------------------------------
+<<<<<<< HEAD
 # Distance Helper (Haversine Formula)
 # -----------------------------------------------------------------------------
 def calculate_haversine_distance(lat1, lon1, lat2, lon2):
@@ -40,6 +44,8 @@ def calculate_haversine_distance(lat1, lon1, lat2, lon2):
 
 
 # -----------------------------------------------------------------------------
+=======
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
 # Page configuration and application data
 # -----------------------------------------------------------------------------
 st.set_page_config(
@@ -514,7 +520,10 @@ with tab1:
                     else:
                         st.session_state.global_api_status = f"No ports found for '{port_query.strip()}'."
                     st.session_state.pop("selected_global_port_index", None)
+<<<<<<< HEAD
                     st.session_state.pop("selected_ship_index", None)
+=======
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
         st.caption("Port search returns matching catalogue results. The provider's complete port-list export is a separate API report and may consume credits.")
     with details_col:
         st.info(st.session_state.global_api_status)
@@ -533,6 +542,7 @@ with tab1:
     global_ports = st.session_state.global_port_rows
     live_ships = st.session_state.live_ais_rows
 
+<<<<<<< HEAD
     base_ports = [
         {"Port": name, "Country": "India", "UN/LOCODE": "IN", "Type": "Seaport", "Latitude": coords["latitude"], "Longitude": coords["longitude"], "Data source": "Default Regional Port"}
         for name, coords in PORTS.items()
@@ -540,6 +550,8 @@ with tab1:
 
     all_map_ports = base_ports + global_ports
 
+=======
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
     demo_map_ships = []
     if not live_ships:
         for vessel_id, info in VESSELS.items():
@@ -551,6 +563,7 @@ with tab1:
             })
     map_ships = live_ships if live_ships else demo_map_ships
 
+<<<<<<< HEAD
     # Calculate real-time distance matrix between all ships and ports
     calculated_distances = []
     for s in map_ships:
@@ -615,6 +628,43 @@ with tab1:
         selected_port = all_map_ports[selected_port_index]
         map_center = [float(selected_port["Latitude"]), float(selected_port["Longitude"])]
         map_zoom = 13
+=======
+    st.markdown("#### Port search results")
+    if global_ports:
+        port_df = pd.DataFrame(global_ports)
+        show_port_df = port_df[["Port", "Country", "UN/LOCODE", "Type", "Latitude", "Longitude"]]
+        port_event = st.dataframe(show_port_df, hide_index=True, use_container_width=True, on_select="rerun", selection_mode="single-row", key="global_port_table")
+        selected_rows = list(port_event.selection.rows)
+        if selected_rows:
+            st.session_state.selected_global_port_index = selected_rows[0]
+    else:
+        st.caption("Search for a port or country above to populate the global port register.")
+
+    st.markdown("#### AIS vessels received")
+    if live_ships:
+        st.dataframe(pd.DataFrame(live_ships), hide_index=True, use_container_width=True)
+    elif demo_map_ships:
+        st.dataframe(pd.DataFrame(demo_map_ships), hide_index=True, use_container_width=True)
+        st.warning("No live AIS capture has been loaded. Blue markers currently show illustrative demo vessels, not real-time positions.")
+    else:
+        st.caption("No vessel positions received yet. Configure AISStream and click Fetch live AIS.")
+
+    # Dynamic map centering logic: zoom to selected port, country average, or default center
+    map_center = [15.0, 0.0] if (global_ports or live_ships) else [12.0, 80.0]
+    map_zoom = 2 if (global_ports or live_ships) else 5
+
+    selected_port_index = st.session_state.get("selected_global_port_index")
+    if global_ports:
+        if selected_port_index is not None and selected_port_index < len(global_ports):
+            selected_port = global_ports[selected_port_index]
+            map_center = [selected_port["Latitude"], selected_port["Longitude"]]
+            map_zoom = 11
+        else:
+            avg_lat = sum(p["Latitude"] for p in global_ports) / len(global_ports)
+            avg_lon = sum(p["Longitude"] for p in global_ports) / len(global_ports)
+            map_center = [avg_lat, avg_lon]
+            map_zoom = 5 if len(global_ports) > 3 else 9
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
 
     global_map = folium.Map(
         location=map_center, zoom_start=map_zoom, tiles=None, control_scale=True,
@@ -622,6 +672,7 @@ with tab1:
     )
     folium.TileLayer("OpenStreetMap", name="OpenStreetMap", no_wrap=True, max_zoom=19).add_to(global_map)
 
+<<<<<<< HEAD
     for i, port in enumerate(all_map_ports):
         port_name = str(port["Port"])
         popup = folium.Popup(
@@ -632,6 +683,17 @@ with tab1:
         folium.Marker(
             [port["Latitude"], port["Longitude"]], tooltip=f"Port: {port_name}", popup=popup,
             icon=folium.Icon(color=icon_color, icon="anchor", prefix="fa"),
+=======
+    for i, port in enumerate(global_ports):
+        port_name = str(port["Port"])
+        popup = folium.Popup(
+            f"<b>{port_name}</b><br>Country: {port['Country']}<br>UN/LOCODE: {port['UN/LOCODE']}<br>Type: {port['Type']}<br>Coordinates: {port['Latitude']:.5f}, {port['Longitude']:.5f}<br>Source: Datalastic port catalogue",
+            max_width=350,
+        )
+        folium.Marker(
+            [port["Latitude"], port["Longitude"]], tooltip=port_name, popup=popup,
+            icon=folium.Icon(color="red", icon="anchor", prefix="fa"),
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
         ).add_to(global_map)
 
     for i, ship in enumerate(map_ships):
@@ -640,15 +702,25 @@ with tab1:
         source = str(ship.get("Data source", "Not provided"))
         speed = ship.get("Speed (knots)")
         course = ship.get("Course (degrees)")
+<<<<<<< HEAD
         icon_color = "darkblue" if (selected_ship_index is not None and i == selected_ship_index) else "blue"
         folium.Marker(
             [float(ship["Latitude"]), float(ship["Longitude"])],
             tooltip=f"Ship: {name}",
+=======
+        folium.Marker(
+            [float(ship["Latitude"]), float(ship["Longitude"])],
+            tooltip=name,
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
             popup=folium.Popup(
                 f"<b>{name}</b><br>MMSI/ID: {mmsi}<br>Speed: {speed if speed is not None else 'Not provided'} knots<br>Course: {course if course is not None else 'Not provided'}<br>Source: {source}",
                 max_width=350,
             ),
+<<<<<<< HEAD
             icon=folium.Icon(color=icon_color, icon="ship", prefix="fa"),
+=======
+            icon=folium.Icon(color="blue", icon="ship", prefix="fa"),
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
         ).add_to(global_map)
 
     folium.LayerControl(collapsed=True).add_to(global_map)
@@ -656,21 +728,35 @@ with tab1:
         global_map, 
         use_container_width=True, 
         height=760, 
+<<<<<<< HEAD
         key=f"portflow_global_map_{selected_area}_{len(all_map_ports)}_{len(map_ships)}_{selected_port_index}_{selected_ship_index}"
+=======
+        key=f"portflow_global_map_{selected_area}_{len(global_ports)}_{len(live_ships)}_{selected_port_index}"
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
     )
 
     map_context = {
         "map_center": map_center,
+<<<<<<< HEAD
         "port_search_results": all_map_ports[:100],
         "live_ais_vessels": live_ships[:300],
         "fallback_demo_vessels": demo_map_ships if not live_ships else [],
         "precalculated_vessel_port_distances": calculated_distances,
+=======
+        "port_search_results": global_ports[:100],
+        "live_ais_vessels": live_ships[:300],
+        "fallback_demo_vessels": demo_map_ships if not live_ships else [],
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
         "api_status": st.session_state.global_api_status,
         "selected_area": selected_area,
     }
     st.session_state["portflow_live_map_context"] = map_context
     st.caption(
+<<<<<<< HEAD
         "Map fills the available page width. Select a port or vessel row in the tables above to pinpoint it on the map."
+=======
+        "Map fills the available page width. Red = ports returned by search; blue = AIS messages captured."
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
     )
 
 
@@ -689,6 +775,7 @@ with tab2:
 
     map_context_for_ai = st.session_state.get("portflow_live_map_context", {})
     map_context_json = json.dumps(map_context_for_ai, ensure_ascii=False, default=str)[:24000]
+<<<<<<< HEAD
     
     system_prompt = (
         "You are PortFlow AI, an assistant for maritime logistics and port operations.\n"
@@ -696,6 +783,11 @@ with tab2:
         "1. GROUND ALL ANSWERS directly using the provided MAP DATA CONTEXT JSON below.\n"
         "2. For distance questions, ONLY use the `precalculated_vessel_port_distances` provided in the JSON data context.\n"
         "3. Do not confuse different ports or assume vessels are at 0 NM distance unless explicitly stated in the precalculated distance matrix.\n\n"
+=======
+    system_prompt = (
+        "You are PortFlow AI, an assistant for maritime logistics and port operations. "
+        "Use clear English and practical steps. Ground answers in the MAP DATA CONTEXT.\n\n"
+>>>>>>> 9f7907c45df0ebdf87a9fac90089305744023058
         "CURRENT MAP DATA CONTEXT (JSON):\n" + map_context_json
     )
 
